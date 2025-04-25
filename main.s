@@ -202,3 +202,7 @@ j3_done:
     add w6, w6, #1
     b loop_i
 done_loop_i:
+    ldp x29, x30, [sp], #16   
+    
+    add sp, sp, #64            
+    ret
