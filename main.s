@@ -135,7 +135,6 @@ j1_loop:
     b j1_loop
 j1_done:
 
-    // ---- Compute g[j] = G_FUNC(x[j] + c[j]) ----
     mov w1, #0 // j = 0 - w1 = j
 loop_j2:
     cmp w1, #8 
@@ -199,7 +198,7 @@ loop_j3:
     add w1, w1, #1
     b loop_j3
 j3_done:
-//===================================================
+
     add w6, w6, #1
     b loop_i
 done_loop_i:
