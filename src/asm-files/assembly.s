@@ -3,19 +3,19 @@
 
 g_func_:
     umull x2, w0, w0     // x2 = (uint64_t)(u) * (uint64_t)(u)
-    lsr x1, x2, #32      // x1 = sq >> 32
-    eor w0, w2, w1       // w0 = (uint32_t)(sq ^ (sq >> 32))
+    lsr x9, x2, #32      // x1 = sq >> 32
+    eor w0, w2, w9       // w0 = (uint32_t)(sq ^ (sq >> 32))
     ret
 
 rabbit_key_setup_:
     stp x29, x30, [sp, #-16]!
     mov x29, sp
-    sub sp, sp, #64
+    sub sp, sp, #96
 
     // k0 ... k3 = key[NUM]
     // w2 = k0 , w3 = k1
     // w4 = k2 , w5 = k3
-    ldr w2, x1
+    ldr w2, [x1]
     ldr w3, [x1, #4]
     ldr w4, [x1, #8]
     ldr w5, [x1, #12]
@@ -104,11 +104,11 @@ rabbit_key_setup_:
     //ctx->carry = 0;
     mov w6, wzr           // or: mov w6, #0
     str w6, [x0, #64]
-
+// =====================================================================ITS ALRIGHT TILL HERE
     movz w6, #0              // i = 0
 loop_i:
     cmp w6, #4
-    b.eq .done_loop_i
+    b.eq done_loop_i
 
     mov w1, #0              // j = 0
 j1_loop:
@@ -121,9 +121,11 @@ j1_loop:
     add w2, w2, w3          // w2 = carry + A
 
     lsl w4, w1, #2          // w4 = offset = j * 4
+    add w4, w4, #32
     add x5, x0, w4, uxtw    // x5 = &ctx->c[j]
-
     ldr w3, [x5]            // prev_c = ctx->c[j]
+
+
     add w7, w3, w2          // new_c = prev_c + delta
     str w7, [x5]            // ctx->c[j] = new_c
 
@@ -142,10 +144,12 @@ loop_j2:
 
     lsl w2, w1, #2          // w2 = j * 4 (offset)
     
-    ldr w3, [x0, w2]        // w3 = x[j]
+    add x11, x0, w2, uxtw
+    ldr w3, [x11]       // w3 = x[j]
 
     add w5 , w2, #32        // c starts after 32 bytes which is 8 * 4
-    ldr w4, [x0, w5]        // w4 = c[j]
+    add x12, x0, w5, uxtw
+    ldr w4, [x12]        // w4 = c[j]
 
     add w3, w3, w4          // w3 = x[j] + c[j]
 
@@ -154,7 +158,8 @@ loop_j2:
     mov w0 , w3             // w0 = x[j] + c[j]
     bl g_func_              // call g_func
     
-    str w0, [sp, w2]        // g[j] = g_func(x[j] + c[j])
+    add x11, sp, w2, uxtw
+    str w0, [x11]        // g[j] = g_func(x[j] + c[j])
 
     b loop_j2
 j2_done:
@@ -166,13 +171,16 @@ loop_j3:
 
     lsl w2, w1, #2
 
-    ldr w9, [sp, w2]        // g[j]
+    add x11, sp, w2, uxtw
+    ldr w9, [x11]        // g[j]
 
     // g[(j+7)%8]
     add w3, w1, #7
     and w3, w3, #7
     lsl w3, w3, #2
-    ldr w4, [sp, w3]        // w4 = g[(j+7)%8]
+
+    add x11, sp, w3, uxtw
+    ldr w4, [x11]        // w4 = g[(j+7)%8]
 
     // ROTL32(g[(j+7)%8], 16)
     lsl w7, w4, #16
@@ -183,7 +191,9 @@ loop_j3:
     add w3, w1, #6
     and w3, w3, #7
     lsl w3, w3, #2
-    ldr w5, [sp, w3]        // w5 = g[(j+6)%8]
+    
+    add x11, sp, w3, uxtw
+    ldr w5, [x11]        // w5 = g[(j+6)%8]
 
     // ROTL32(g[(j + 6) % 8], 24)
     lsl w7, w5, #24
@@ -193,7 +203,8 @@ loop_j3:
     eor w3, w9, w4
     eor w3, w5, w3
 
-    str w3, [x10, w2]      // ctx->x[j] = ...
+    add x11, x10, w2, uxtw
+    str w3, [x11]      // ctx->x[j] = ...
 
     add w1, w1, #1
     b loop_j3
@@ -202,7 +213,6 @@ j3_done:
     add w6, w6, #1
     b loop_i
 done_loop_i:
-    ldp x29, x30, [sp], #16   
-    
-    add sp, sp, #64            
+    add sp, sp, #96
+    ldp x29, x30, [sp], #16
     ret

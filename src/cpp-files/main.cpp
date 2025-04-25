@@ -38,7 +38,7 @@ void rabbit_key_setup(rabbit_ctx *ctx, const uint8_t key[16]) {
     ctx->x[5] = (k1 << 16) | (k0 >> 16);
     ctx->x[7] = (k2 << 16) | (k1 >> 16);
     
-    // TILL HERE
+    // // TILL HERE
     ctx->c[0] = ROTL32(k2, 16);
     ctx->c[2] = ROTL32(k3, 16);
     ctx->c[4] = ROTL32(k0, 16);
@@ -60,11 +60,11 @@ void rabbit_key_setup(rabbit_ctx *ctx, const uint8_t key[16]) {
             ctx->carry = ctx->c[j] < prev_c;
         }
 
-        for (int j = 0; j < 8; j++)
-            g[j] = G_FUNC(ctx->x[j] + ctx->c[j]);
+        // for (int j = 0; j < 8; j++)
+        //     g[j] = G_FUNC(ctx->x[j] + ctx->c[j]);
 
-        for (int j = 0; j < 8; j++)
-            ctx->x[j] = g[j] ^ ROTL32(g[(j + 7) % 8], 16) ^ ROTL32(g[(j + 6) % 8], 24);
+        // for (int j = 0; j < 8; j++)
+        //     ctx->x[j] = g[j] ^ ROTL32(g[(j + 7) % 8], 16) ^ ROTL32(g[(j + 6) % 8], 24);
     }
 }
 
@@ -116,17 +116,34 @@ int main1() {
 
     rabbit_ctx ctx;
     rabbit_key_setup(&ctx, key);
+    printf("%d-",ctx.x[0]);
+    printf("%d-",ctx.x[1]);
+    printf("%d-",ctx.x[2]);
+    printf("%d-",ctx.x[3]);
+    printf("%d-",ctx.x[4]);
+    printf("%d-",ctx.x[5]);
+    printf("%d-",ctx.x[6]);
+    printf("%d-",ctx.x[7]);
 
-    printf("Original: %s\n", plaintext);
-
-    rabbit_crypt(&ctx, plaintext, len);
-    printf("Encrypted: ");
-    for (size_t i = 0; i < len; i++) printf("%02X ", plaintext[i]);
+    printf("%d-",ctx.c[0]);
+    printf("%d-",ctx.c[1]);
+    printf("%d-",ctx.c[2]);
+    printf("%d-",ctx.c[3]);
+    printf("%d-",ctx.c[4]);
+    printf("%d-",ctx.c[5]);
+    printf("%d-",ctx.c[6]);
+    printf("%d-",ctx.c[7]);
     printf("\n");
+    // printf("Original: %s\n", plaintext);
 
-    rabbit_key_setup(&ctx, key); // Reinitialize for decryption
-    rabbit_crypt(&ctx, plaintext, len);
-    printf("Decrypted: %s\n", plaintext);
+    // rabbit_crypt(&ctx, plaintext, len);
+    // printf("Encrypted: ");
+    // for (size_t i = 0; i < len; i++) printf("%02X ", plaintext[i]);
+    // printf("\n");
+
+    // rabbit_key_setup(&ctx, key); // Reinitialize for decryption
+    // rabbit_crypt(&ctx, plaintext, len);
+    // printf("Decrypted: %s\n", plaintext);
 
     return 0;
 }
@@ -139,16 +156,34 @@ int main2() {
     rabbit_ctx ctx;
     rabbit_key_setup_(&ctx, key);
 
-    printf("Original: %s\n", plaintext);
-
-    rabbit_crypt_(&ctx, plaintext, len);
-    printf("Encrypted: ");
-    for (size_t i = 0; i < len; i++) printf("%02X ", plaintext[i]);
+    printf("%d-",ctx.x[0]);
+    printf("%d-",ctx.x[1]);
+    printf("%d-",ctx.x[2]);
+    printf("%d-",ctx.x[3]);
+    printf("%d-",ctx.x[4]);
+    printf("%d-",ctx.x[5]);
+    printf("%d-",ctx.x[6]);
+    printf("%d-",ctx.x[7]);
+    printf("%d-",ctx.c[0]);
+    printf("%d-",ctx.c[1]);
+    printf("%d-",ctx.c[2]);
+    printf("%d-",ctx.c[3]);
+    printf("%d-",ctx.c[4]);
+    printf("%d-",ctx.c[5]);
+    printf("%d-",ctx.c[6]);
+    printf("%d-",ctx.c[7]);
     printf("\n");
 
-    rabbit_key_setup_(&ctx, key); // Reinitialize for decryption
-    rabbit_crypt_(&ctx, plaintext, len);
-    printf("Decrypted: %s\n", plaintext);
+    // printf("Original: %s\n", plaintext);
+
+    // rabbit_crypt_(&ctx, plaintext, len);
+    // printf("Encrypted: ");
+    // for (size_t i = 0; i < len; i++) printf("%02X ", plaintext[i]);
+    // printf("\n");
+
+    // rabbit_key_setup_(&ctx, key); // Reinitialize for decryption
+    // rabbit_crypt_(&ctx, plaintext, len);
+    // printf("Decrypted: %s\n", plaintext);
 
     return 0;
 }
