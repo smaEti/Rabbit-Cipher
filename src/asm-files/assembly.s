@@ -98,7 +98,7 @@ rabbit_key_setup_:
     //ctx->carry = 0;
     mov w6, wzr           // or: mov w6, #0
     str w6, [x0, #64]
-// =====================================================================ITS ALRIGHT TILL HERE
+
     movz w6, #0              // i = 0
 loop_i:
     cmp w6, #4
@@ -164,16 +164,19 @@ j2_done:
 //    cmp w1, #8
 //    b.eq j3_done
 //
-//    lsl w2, w1, #2
+//    lsl w2, w1, #2       // offset = j * 4
 //
-//    add x11, sp, w2, uxtw
+//    lsl w3, w2, #4
+//    add x11, sp, w3, uxtw
 //    ldr w9, [x11]        // g[j]
 //
 //    // g[(j+7)%8]
 //    add w3, w1, #7
 //    and w3, w3, #7
-//    lsl w3, w3, #2
+//    lsl w3, w3, #2       // w3 = (j+7)%8
 //
+//    lsl w3, w3, #2       // offset
+//    lsl w3, w3, #4       // stack shit
 //    add x11, sp, w3, uxtw
 //    ldr w4, [x11]        // w4 = g[(j+7)%8]
 //
@@ -187,6 +190,8 @@ j2_done:
 //    and w3, w3, #7
 //    lsl w3, w3, #2
 //    
+//    lsl w3, w3, #2       // offset
+//    lsl w3, w3, #4       // stack shit
 //    add x11, sp, w3, uxtw
 //    ldr w5, [x11]        // w5 = g[(j+6)%8]
 //
@@ -198,7 +203,7 @@ j2_done:
 //    eor w3, w9, w4
 //    eor w3, w5, w3
 //
-//    add x11, x10, w2, uxtw
+//    add x11, x0, w2, uxtw
 //    str w3, [x11]      // ctx->x[j] = ...
 //
 //    add w1, w1, #1

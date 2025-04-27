@@ -116,23 +116,25 @@ int main1() {
 
     rabbit_ctx ctx;
     rabbit_key_setup(&ctx, key);
-    printf("%d-",ctx.x[0]);
-    printf("%d-",ctx.x[1]);
-    printf("%d-",ctx.x[2]);
-    printf("%d-",ctx.x[3]);
-    printf("%d-",ctx.x[4]);
-    printf("%d-",ctx.x[5]);
-    printf("%d-",ctx.x[6]);
-    printf("%d-",ctx.x[7]);
-
-    printf("%d-",ctx.c[0]);
-    printf("%d-",ctx.c[1]);
-    printf("%d-",ctx.c[2]);
-    printf("%d-",ctx.c[3]);
-    printf("%d-",ctx.c[4]);
-    printf("%d-",ctx.c[5]);
-    printf("%d-",ctx.c[6]);
-    printf("%d-",ctx.c[7]);
+    printf("CTX.X:");
+    printf("\n-0:%d",ctx.x[0]);
+    printf("\n-1:%d",ctx.x[1]);
+    printf("\n-2:%d",ctx.x[2]);
+    printf("\n-3:%d",ctx.x[3]);
+    printf("\n-4:%d",ctx.x[4]);
+    printf("\n-5:%d",ctx.x[5]);
+    printf("\n-6:%d",ctx.x[6]);
+    printf("\n-7:%d",ctx.x[7]);
+    printf("\n");
+    printf("CTX.C:");
+    printf("\n-0:%d",ctx.c[0]);
+    printf("\n-1:%d",ctx.c[1]);
+    printf("\n-2:%d",ctx.c[2]);
+    printf("\n-3:%d",ctx.c[3]);
+    printf("\n-4:%d",ctx.c[4]);
+    printf("\n-5:%d",ctx.c[5]);
+    printf("\n-6:%d",ctx.c[6]);
+    printf("\n-7:%d",ctx.c[7]);
     printf("\n");
     // printf("Original: %s\n", plaintext);
 
@@ -155,23 +157,25 @@ int main2() {
 
     rabbit_ctx ctx;
     rabbit_key_setup_(&ctx, key);
-
-    printf("%d-",ctx.x[0]);
-    printf("%d-",ctx.x[1]);
-    printf("%d-",ctx.x[2]);
-    printf("%d-",ctx.x[3]);
-    printf("%d-",ctx.x[4]);
-    printf("%d-",ctx.x[5]);
-    printf("%d-",ctx.x[6]);
-    printf("%d-",ctx.x[7]);
-    printf("%d-",ctx.c[0]);
-    printf("%d-",ctx.c[1]);
-    printf("%d-",ctx.c[2]);
-    printf("%d-",ctx.c[3]);
-    printf("%d-",ctx.c[4]);
-    printf("%d-",ctx.c[5]);
-    printf("%d-",ctx.c[6]);
-    printf("%d-",ctx.c[7]);
+    printf("CTX.X:");
+    printf("\n-0:%d",ctx.x[0]);
+    printf("\n-1:%d",ctx.x[1]);
+    printf("\n-2:%d",ctx.x[2]);
+    printf("\n-3:%d",ctx.x[3]);
+    printf("\n-4:%d",ctx.x[4]);
+    printf("\n-5:%d",ctx.x[5]);
+    printf("\n-6:%d",ctx.x[6]);
+    printf("\n-7:%d",ctx.x[7]);
+    printf("\n");
+    printf("CTX.C:");
+    printf("\n-0:%d",ctx.c[0]);
+    printf("\n-1:%d",ctx.c[1]);
+    printf("\n-2:%d",ctx.c[2]);
+    printf("\n-3:%d",ctx.c[3]);
+    printf("\n-4:%d",ctx.c[4]);
+    printf("\n-5:%d",ctx.c[5]);
+    printf("\n-6:%d",ctx.c[6]);
+    printf("\n-7:%d",ctx.c[7]);
     printf("\n");
 
     // printf("Original: %s\n", plaintext);
