@@ -1,12 +1,6 @@
 .text
 .global rabbit_key_setup_
 
-g_func_:
-    umull x2, w0, w0     // x2 = (uint64_t)(u) * (uint64_t)(u)
-    lsr x9, x2, #32      // x1 = sq >> 32
-    eor w0, w2, w9       // w0 = (uint32_t)(sq ^ (sq >> 32))
-    ret
-
 rabbit_key_setup_:
     stp x29, x30, [sp, #-16]!
     mov x29, sp
@@ -153,62 +147,63 @@ loop_j2:
 
     add w3, w3, w4          // w3 = x[j] + c[j]
 
-    mov x10, x0             // backup of x0
-
-    mov w0 , w3             // w0 = x[j] + c[j]
-    bl g_func_              // call g_func
+    umull x12, w3, w3     // x2 = (uint64_t)(u) * (uint64_t)(u)
+    lsr x9, x12, #32      // x1 = sq >> 32
+    eor w3, w2, w9       // w0 = (uint32_t)(sq ^ (sq >> 32))
     
+    lsl w2, w2, #4
     add x11, sp, w2, uxtw
-    str w0, [x11]        // g[j] = g_func(x[j] + c[j])
+    str w3, [x11]        // g[j] = g_func(x[j] + c[j])
 
+    add w1, w1, #1
     b loop_j2
 j2_done:
 
-    mov w1, #0
-loop_j3:
-    cmp w1, #8
-    b.eq j3_done
-
-    lsl w2, w1, #2
-
-    add x11, sp, w2, uxtw
-    ldr w9, [x11]        // g[j]
-
-    // g[(j+7)%8]
-    add w3, w1, #7
-    and w3, w3, #7
-    lsl w3, w3, #2
-
-    add x11, sp, w3, uxtw
-    ldr w4, [x11]        // w4 = g[(j+7)%8]
-
-    // ROTL32(g[(j+7)%8], 16)
-    lsl w7, w4, #16
-    lsr w8, w4, #16
-    orr w4, w7, w8
-
-    // g[(j+6)%8]
-    add w3, w1, #6
-    and w3, w3, #7
-    lsl w3, w3, #2
-    
-    add x11, sp, w3, uxtw
-    ldr w5, [x11]        // w5 = g[(j+6)%8]
-
-    // ROTL32(g[(j + 6) % 8], 24)
-    lsl w7, w5, #24
-    lsr w8, w5, #8
-    orr w5, w7, w8
-
-    eor w3, w9, w4
-    eor w3, w5, w3
-
-    add x11, x10, w2, uxtw
-    str w3, [x11]      // ctx->x[j] = ...
-
-    add w1, w1, #1
-    b loop_j3
-j3_done:
+//    mov w1, #0
+//loop_j3:
+//    cmp w1, #8
+//    b.eq j3_done
+//
+//    lsl w2, w1, #2
+//
+//    add x11, sp, w2, uxtw
+//    ldr w9, [x11]        // g[j]
+//
+//    // g[(j+7)%8]
+//    add w3, w1, #7
+//    and w3, w3, #7
+//    lsl w3, w3, #2
+//
+//    add x11, sp, w3, uxtw
+//    ldr w4, [x11]        // w4 = g[(j+7)%8]
+//
+//    // ROTL32(g[(j+7)%8], 16)
+//    lsl w7, w4, #16
+//    lsr w8, w4, #16
+//    orr w4, w7, w8
+//
+//    // g[(j+6)%8]
+//    add w3, w1, #6
+//    and w3, w3, #7
+//    lsl w3, w3, #2
+//    
+//    add x11, sp, w3, uxtw
+//    ldr w5, [x11]        // w5 = g[(j+6)%8]
+//
+//    // ROTL32(g[(j + 6) % 8], 24)
+//    lsl w7, w5, #24
+//    lsr w8, w5, #8
+//    orr w5, w7, w8
+//
+//    eor w3, w9, w4
+//    eor w3, w5, w3
+//
+//    add x11, x10, w2, uxtw
+//    str w3, [x11]      // ctx->x[j] = ...
+//
+//    add w1, w1, #1
+//    b loop_j3
+//j3_done:
 
     add w6, w6, #1
     b loop_i

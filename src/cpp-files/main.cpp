@@ -60,11 +60,11 @@ void rabbit_key_setup(rabbit_ctx *ctx, const uint8_t key[16]) {
             ctx->carry = ctx->c[j] < prev_c;
         }
 
-        // for (int j = 0; j < 8; j++)
-        //     g[j] = G_FUNC(ctx->x[j] + ctx->c[j]);
+        for (int j = 0; j < 8; j++)
+            g[j] = G_FUNC(ctx->x[j] + ctx->c[j]);
 
-        // for (int j = 0; j < 8; j++)
-        //     ctx->x[j] = g[j] ^ ROTL32(g[(j + 7) % 8], 16) ^ ROTL32(g[(j + 6) % 8], 24);
+        for (int j = 0; j < 8; j++)
+            ctx->x[j] = g[j] ^ ROTL32(g[(j + 7) % 8], 16) ^ ROTL32(g[(j + 6) % 8], 24);
     }
 }
 
