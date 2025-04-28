@@ -349,3 +349,59 @@ f2_j3_done:
     add sp, sp, #128
     ldp x29, x30, [sp], #16
     ret
+
+.global rabbit_crypt_
+rabbit_crypt_:
+    stp x29, x30, [sp, #-80]!
+    mov x29, sp    
+    stp x19, x20, [x29, #16]  
+    stp x21, x22, [x29, #32]
+    stp x23, x24, [x29, #48]
+    str x25, [x29, #64]
+
+    mov x19, x0                    // Save ctx
+    mov x20, x1                    // Save data pointer
+    mov x21, x2                    // Save len
+    add x24, x29, #72              // keystream at sp+72 (16 bytes)
+
+    mov x22, xzr                   // i = 0
+
+outer_loop:
+    cmp x22, x21                   // i < len?
+    b.hs outer_done
+
+    // Prepare and call rabbit_generate_keystream_
+    mov x0, x19                    // ctx parameter
+    mov x1, x24                    // keystream buffer parameter
+    bl rabbit_generate_keystream_  // Call the function
+
+    mov x23, xzr                   // j = 0
+
+inner_loop:
+    cmp x23, #16                   // j < 16?
+    b.hs inner_done
+    add x25, x22, x23              // i + j
+    cmp x25, x21                   // i + j < len?
+    b.hs inner_done
+
+    // Perform the XOR operation
+    ldrb w0, [x20, x25]           // Load data[i+j]
+    ldrb w1, [x24, x23]           // Load keystream[j]
+    eor w0, w0, w1                // XOR them
+    strb w0, [x20, x25]           // Store back
+
+    add x23, x23, #1               // j++
+    b inner_loop
+
+inner_done:
+    add x22, x22, #16              // i += 16
+    b outer_loop
+
+outer_done:
+    // Epilogue - restore all registers
+    ldr x25, [x29, #64]
+    ldp x23, x24, [x29, #48]
+    ldp x21, x22, [x29, #32]
+    ldp x19, x20, [x29, #16]
+    ldp x29, x30, [sp], #80       
+    ret

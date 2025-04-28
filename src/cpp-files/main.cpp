@@ -19,7 +19,7 @@ typedef struct {
 #define ROTL32(x, n) ((x << n) | (x >> (32 - n)))
 
 extern "C" void rabbit_key_setup_(rabbit_ctx *ctx, const uint8_t key[16]);
-// extern "C" void rabbit_crypt_(rabbit_ctx *ctx, uint8_t *data, size_t len);
+extern "C" void rabbit_crypt_(rabbit_ctx *ctx, uint8_t *data, size_t len);
 extern "C" void rabbit_generate_keystream_(rabbit_ctx *ctx, uint8_t *data);
 
 
@@ -109,16 +109,16 @@ void rabbit_crypt(rabbit_ctx *ctx, uint8_t *data, size_t len) {
 }
 
 // Encrypt or decrypt using Rabbit (XORs keystream with data)
-void rabbit_crypt_(rabbit_ctx *ctx, uint8_t *data, size_t len) {
-    uint8_t keystream[16];
+// void rabbit_crypt_(rabbit_ctx *ctx, uint8_t *data, size_t len) {
+//     uint8_t keystream[16];
 
-    for (size_t i = 0; i < len; i += 16) {
-        rabbit_generate_keystream_(ctx, keystream);
+//     for (size_t i = 0; i < len; i += 16) {
+//         rabbit_generate_keystream_(ctx, keystream);
 
-        for (size_t j = 0; j < 16 && i + j < len; j++)
-            data[i + j] ^= keystream[j];
-    }
-}
+//         for (size_t j = 0; j < 16 && i + j < len; j++)
+//             data[i + j] ^= keystream[j];
+//     }
+// }
 
 // Example usage
 int main1() {
