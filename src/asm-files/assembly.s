@@ -209,3 +209,143 @@ done_loop_i:
     add sp, sp, #96
     ldp x29, x30, [sp], #16
     ret
+
+.global rabbit_generate_keystream_
+
+rabbit_generate_keystream_:
+
+    stp x29, x30, [sp, #-16]!
+    mov x29, sp
+    sub sp, sp, #128
+
+    mov w10, #0              // j = 0
+f2_j1_loop:
+    cmp w10, #8
+    b.eq f2_j1_done
+
+    ldr w6, [x0, #64]       // ctx->carry
+    movz w3, #0xD34D                // w3 = 0x0000D34D
+    movk w3, #0x4D34, lsl #16       // w3 = 0x4D34D34D
+    add w6, w6, w3          // w6 = carry + A
+
+    lsl w4, w10, #2          // w4 = offset = j * 4
+    add w4, w4, #32
+    add x5, x0, w4, uxtw    // x5 = &ctx->c[j]
+    ldr w3, [x5]            // prev_c = ctx->c[j]
+
+    add w7, w3, w6          // new_c = prev_c + delta
+    str w7, [x5]            // ctx->c[j] = new_c
+
+    cmp w7, w3
+    cset w6, lo             // carry = new_c < prev_c
+    str w6, [x0, #64]       // ctx->carry = carry
+
+    add w10, w10, #1
+    b f2_j1_loop
+f2_j1_done:
+
+    mov w10, #0 // j = 0 - w10 = j
+f2_loop_j2:
+    cmp w10, #8 
+    b.eq f2_j2_done
+
+    lsl w2, w10, #2          // w2 = j * 4 (offset)
+    
+    add x11, x0, w2, uxtw
+    ldr w3, [x11]       // w3 = x[j]
+
+    add w5 , w2, #32        // c starts after 32 bytes which is 8 * 4
+    add x12, x0, w5, uxtw
+    ldr w4, [x12]        // w4 = c[j]
+
+    add w3, w3, w4          // w3 = x[j] + c[j]
+
+    umull x12, w3, w3
+    lsr x9, x12, #32
+    eor w3, w12, w9
+
+    add x11, sp, w2, uxtw 
+    str w3, [x11]           // store g[j] into stack
+
+    add w10, w10, #1
+    b f2_loop_j2
+f2_j2_done:
+
+    mov w10, #0
+f2_loop_j3:
+    cmp w10, #8
+    b.eq f2_j3_done
+
+    lsl w2, w10, #2       // offset = j * 4
+
+    add x11, sp, w2, uxtw 
+    ldr w9, [x11]        // g[j]
+
+    // g[(j+7)%8]
+    add w3, w10, #7
+    and w3, w3, #7
+    lsl w3, w3, #2       // w3 = (j+7)%8 * 4
+
+    add x11, sp, w3, uxtw 
+    ldr w4, [x11]        // w4 = g[(j+7)%8]
+
+    // ROTL32(g[(j+7)%8], 16)
+    lsl w7, w4, #16
+    lsr w8, w4, #16
+    orr w4, w7, w8
+
+    // g[(j+6)%8]
+    add w3, w10, #6
+    and w3, w3, #7
+    lsl w3, w3, #2       // w3 = (j+6)%8 * 4
+
+    add x11, sp, w3, uxtw 
+    ldr w5, [x11]        // w5 = g[(j+6)%8]
+
+    // ROTL32(g[(j + 6) % 8], 24)
+    lsl w7, w5, #24
+    lsr w8, w5, #8
+    orr w5, w7, w8
+
+    eor w3, w9, w4
+    eor w3, w5, w3
+
+    add w6, w2, #32
+    add x11, sp, w6, uxtw 
+    str w3, [x11]      // next_x = ...
+
+    add w10, w10, #1
+    b f2_loop_j3
+f2_j3_done:
+
+    // k0 = next_x[0] ^ (next_x[5] >> 16)
+    ldr w6, [sp, #32]           // next_x[0] 
+    ldr w10, [sp, #52]          // next_x[5] 
+    lsr w10, w10, #16
+    eor w6, w6, w10
+    str w6, [x1]                // Store k0
+
+    // k1 = next_x[2] ^ (next_x[7] >> 16)
+    ldr w6, [sp, #40]           // next_x[2] 
+    ldr w10, [sp, #60]          // next_x[7] 
+    lsr w10, w10, #16
+    eor w6, w6, w10
+    str w6, [x1, #4]            // Store k1
+
+    // k2 = next_x[4] ^ (next_x[1] >> 16)
+    ldr w6, [sp, #48]           // next_x[4] 
+    ldr w10, [sp, #36]          // next_x[1] 
+    lsr w10, w10, #16
+    eor w6, w6, w10
+    str w6, [x1, #8]            // Store k2
+
+    // k3 = next_x[6] ^ (next_x[3] >> 16)
+    ldr w6, [sp, #56]           // next_x[6] 
+    ldr w10, [sp, #44]          // next_x[3] 
+    lsr w10, w10, #16
+    eor w6, w6, w10
+    str w6, [x1, #12]           // Store k3
+
+    add sp, sp, #128
+    ldp x29, x30, [sp], #16
+    ret
