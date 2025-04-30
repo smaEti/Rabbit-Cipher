@@ -370,7 +370,6 @@ outer_loop:
     cmp x22, x21                   // i < len?
     b.hs outer_done
 
-    // Prepare and call rabbit_generate_keystream_
     mov x0, x19                    // ctx parameter
     mov x1, x24                    // keystream buffer parameter
     bl rabbit_generate_keystream_  // Call the function
@@ -384,7 +383,6 @@ inner_loop:
     cmp x25, x21                   // i + j < len?
     b.hs inner_done
 
-    // Perform the XOR operation
     ldrb w0, [x20, x25]           // Load data[i+j]
     ldrb w1, [x24, x23]           // Load keystream[j]
     eor w0, w0, w1                // XOR them
@@ -398,7 +396,7 @@ inner_done:
     b outer_loop
 
 outer_done:
-    // Epilogue - restore all registers
+
     ldr x25, [x29, #64]
     ldp x23, x24, [x29, #48]
     ldp x21, x22, [x29, #32]
